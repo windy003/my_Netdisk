@@ -263,6 +263,88 @@
             background: #5a6268;
         }
 
+        /* 搜索框样式 */
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 10px;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            display: none;
+        }
+
+        .search-input-wrapper.active {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            padding: 10px 35px 10px 12px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 200px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #5568d3;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .search-clear-btn {
+            position: absolute;
+            right: 8px;
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 2px 6px;
+        }
+
+        .search-clear-btn:hover {
+            color: #666;
+        }
+
+        .search-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .search-btn:hover {
+            background: #5568d3;
+        }
+
+        .search-btn.active {
+            background: #5568d3;
+        }
+
+        .file-item.hidden {
+            display: none !important;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            display: none;
+        }
+
+        .no-results.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .search-input {
+                width: 150px;
+            }
+        }
+
         .alert {
             padding: 12px 20px;
             margin-bottom: 20px;
@@ -796,7 +878,14 @@
         <div class="actions">
             <button class="btn btn-primary" onclick="openUploadModal()">上传文件</button>
             <button class="btn btn-success" onclick="openMkdirModal()">创建文件夹</button>
-            <div style="margin-left: auto; display: flex; gap: 5px;">
+            <div style="margin-left: auto; display: flex; gap: 5px; align-items: center;">
+                <div class="search-container">
+                    <div class="search-input-wrapper" id="searchInputWrapper">
+                        <input type="text" class="search-input" id="searchInput" placeholder="搜索文件..." oninput="filterFiles()">
+                        <button class="search-clear-btn" onclick="clearSearch()" title="清除">×</button>
+                    </div>
+                    <button class="btn search-btn" id="searchBtn" onclick="toggleSearch()" title="搜索">🔍</button>
+                </div>
                 <button class="btn btn-secondary" id="listViewBtn" onclick="switchView('list')" title="列表视图">☰</button>
                 <button class="btn btn-secondary" id="gridViewBtn" onclick="switchView('grid')" title="网格视图">⊞</button>
             </div>
@@ -877,6 +966,10 @@
                     <p>此目录为空</p>
                 </div>
             {% endif %}
+            <div class="no-results" id="noResults">
+                <div class="empty-state-icon">🔍</div>
+                <p>没有找到匹配的文件</p>
+            </div>
         </div>
     </div>
 
@@ -1004,6 +1097,80 @@
 
     <script>
         const currentPath = "{{ current_path }}";
+
+        // ============ 搜索功能 ============
+        function toggleSearch() {
+            const searchWrapper = document.getElementById('searchInputWrapper');
+            const searchBtn = document.getElementById('searchBtn');
+            const searchInput = document.getElementById('searchInput');
+
+            if (searchWrapper.classList.contains('active')) {
+                // 关闭搜索
+                searchWrapper.classList.remove('active');
+                searchBtn.classList.remove('active');
+                clearSearch();
+            } else {
+                // 打开搜索
+                searchWrapper.classList.add('active');
+                searchBtn.classList.add('active');
+                searchInput.focus();
+            }
+        }
+
+        function filterFiles() {
+            const searchInput = document.getElementById('searchInput');
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const fileItems = document.querySelectorAll('.file-item');
+            const noResults = document.getElementById('noResults');
+            const emptyState = document.querySelector('.empty-state');
+
+            let visibleCount = 0;
+
+            fileItems.forEach(item => {
+                const fileName = item.querySelector('.file-name a');
+                if (fileName) {
+                    const name = fileName.textContent.toLowerCase();
+                    if (searchTerm === '' || name.includes(searchTerm)) {
+                        item.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                }
+            });
+
+            // 显示/隐藏无结果提示
+            if (searchTerm !== '' && visibleCount === 0) {
+                noResults.classList.add('show');
+                if (emptyState) emptyState.style.display = 'none';
+            } else {
+                noResults.classList.remove('show');
+                if (emptyState && fileItems.length === 0) emptyState.style.display = 'block';
+            }
+        }
+
+        function clearSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const noResults = document.getElementById('noResults');
+            const fileItems = document.querySelectorAll('.file-item');
+
+            searchInput.value = '';
+            noResults.classList.remove('show');
+
+            fileItems.forEach(item => {
+                item.classList.remove('hidden');
+            });
+        }
+
+        // 支持 ESC 键关闭搜索
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const searchWrapper = document.getElementById('searchInputWrapper');
+                if (searchWrapper.classList.contains('active')) {
+                    toggleSearch();
+                }
+            }
+        });
 
         // ============ 音频播放器管理 ============
         // 检测是否在 Android App 中运行
