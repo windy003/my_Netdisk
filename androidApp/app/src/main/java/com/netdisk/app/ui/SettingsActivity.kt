@@ -39,43 +39,68 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun loadSettings() {
-        serverUrlInput.setText(preferencesManager.getServerHost())
-        portInput.setText(preferencesManager.getServerPort().toString())
+        // 获取当前保存的完整URL
+        val fullUrl = preferencesManager.getServerUrl()
+
+        // 如果是完整URL（包含http://或https://），直接显示
+        if (fullUrl.startsWith("http://") || fullUrl.startsWith("https://")) {
+            serverUrlInput.setText(fullUrl)
+            portInput.setText("")  // 完整URL模式下端口留空
+        } else {
+            // 传统模式：显示主机和端口
+            serverUrlInput.setText(preferencesManager.getServerHost())
+            portInput.setText(preferencesManager.getServerPort().toString())
+        }
     }
 
     private fun saveSettings() {
-        var host = serverUrlInput.text.toString().trim()
+        val input = serverUrlInput.text.toString().trim()
         val portStr = portInput.text.toString().trim()
 
-        if (host.isEmpty()) {
+        if (input.isEmpty()) {
             Toast.makeText(this, "Server URL cannot be empty", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // 自动提取主机名（支持输入完整 URL）
-        host = extractHost(host)
-        serverUrlInput.setText(host)
+        // 检测是否为完整URL（包含http://或https://）
+        if (input.startsWith("http://") || input.startsWith("https://")) {
+            // 完整URL模式（支持cloudflare tunnel等）
+            var fullUrl = input
 
-        if (portStr.isEmpty()) {
-            Toast.makeText(this, "Port cannot be empty", Toast.LENGTH_SHORT).show()
-            return
+            // 移除末尾的斜杠
+            if (fullUrl.endsWith("/")) {
+                fullUrl = fullUrl.substring(0, fullUrl.length - 1)
+            }
+
+            // 保存完整URL
+            preferencesManager.saveFullServerUrl(fullUrl)
+            Toast.makeText(this, "已保存完整URL: $fullUrl", Toast.LENGTH_SHORT).show()
+        } else {
+            // 传统的主机+端口模式
+            var host = extractHost(input)
+            serverUrlInput.setText(host)
+
+            if (portStr.isEmpty()) {
+                Toast.makeText(this, "Port cannot be empty", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            val port = portStr.toIntOrNull()
+            if (port == null || port < 1 || port > 65535) {
+                Toast.makeText(this, "Invalid port number", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            // Validate URL format (basic validation)
+            if (!isValidHost(host)) {
+                Toast.makeText(this, getString(R.string.invalid_url), Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            // Save settings
+            preferencesManager.saveServerConfig(host, port)
+            Toast.makeText(this, getString(R.string.server_config_saved), Toast.LENGTH_SHORT).show()
         }
-
-        val port = portStr.toIntOrNull()
-        if (port == null || port < 1 || port > 65535) {
-            Toast.makeText(this, "Invalid port number", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Validate URL format (basic validation)
-        if (!isValidHost(host)) {
-            Toast.makeText(this, getString(R.string.invalid_url), Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Save settings
-        preferencesManager.saveServerConfig(host, port)
-        Toast.makeText(this, getString(R.string.server_config_saved), Toast.LENGTH_SHORT).show()
 
         // Set result and go back to main activity
         setResult(RESULT_OK)

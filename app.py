@@ -16,6 +16,11 @@ load_dotenv(override=True)
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', secrets.token_hex(16))
 
+# 禁用模板缓存，确保每次都加载最新模板
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.jinja_env.auto_reload = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
 # 设置会话持久化时间为30天
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
 

@@ -19,7 +19,18 @@ class JavaScriptBridge(
 
     @JavascriptInterface
     fun playAudio(url: String, title: String, playlistJson: String) {
-        Log.d(TAG, "playAudio called: url=$url, title=$title")
+        playAudio(url, title, playlistJson, null)
+    }
+
+    @JavascriptInterface
+    fun playAudio(url: String, title: String, playlistJson: String, playMode: String?) {
+        Log.d(TAG, "========================================")
+        Log.d(TAG, "JavaScriptBridge.playAudio() called")
+        Log.d(TAG, "  URL: $url")
+        Log.d(TAG, "  Title: $title")
+        Log.d(TAG, "  PlayMode: $playMode")
+        Log.d(TAG, "  Playlist items: ${parsePlaylist(playlistJson).size}")
+        Log.d(TAG, "========================================")
 
         try {
             // Parse playlist from JSON
@@ -31,8 +42,13 @@ class JavaScriptBridge(
                 putExtra(AudioPlaybackService.EXTRA_URL, url)
                 putExtra(AudioPlaybackService.EXTRA_TITLE, title)
                 putExtra(AudioPlaybackService.EXTRA_PLAYLIST, playlistJson)
+                playMode?.let {
+                    putExtra(AudioPlaybackService.EXTRA_PLAY_MODE, it)
+                    Log.d(TAG, "  Including playMode in intent: $it")
+                }
             }
             context.startService(intent)
+            Log.d(TAG, "AudioPlaybackService started")
 
         } catch (e: Exception) {
             Log.e(TAG, "Error playing audio", e)
@@ -75,12 +91,18 @@ class JavaScriptBridge(
 
     @JavascriptInterface
     fun setPlayMode(mode: String) {
-        Log.d(TAG, "setPlayMode called: mode=$mode")
+        Log.d(TAG, "========================================")
+        Log.d(TAG, "JavaScriptBridge.setPlayMode() called")
+        Log.d(TAG, "  Mode from JavaScript: '$mode'")
+        Log.d(TAG, "  Mode uppercase: '${mode.uppercase()}'")
+        Log.d(TAG, "========================================")
+
         val intent = Intent(context, AudioPlaybackService::class.java).apply {
             action = AudioPlaybackService.ACTION_SET_MODE
             putExtra(AudioPlaybackService.EXTRA_PLAY_MODE, mode)
         }
         context.startService(intent)
+        Log.d(TAG, "setPlayMode intent sent to service")
     }
 
     @JavascriptInterface

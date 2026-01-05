@@ -69,18 +69,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isFirstLaunch(): Boolean {
-        // Check if server host is still the default value
-        val serverHost = preferencesManager.getServerHost()
-        val isDefault = serverHost == "192.168.1.100"
-
-        // Also check if user has never saved any config
-        val hasConfigured = preferencesManager.hasConfigured()
-
-        return isDefault && !hasConfigured
+        // 直接检查用户是否已经配置过服务器
+        return !preferencesManager.hasConfigured()
     }
 
     private fun setupWebView() {
         android.util.Log.d("MainActivity", "setupWebView() called")
+
+        // 清除WebView缓存
+        webView.clearCache(true)
+        android.util.Log.d("MainActivity", "WebView cache cleared")
 
         webView.settings.apply {
             javaScriptEnabled = true
@@ -90,7 +88,7 @@ class MainActivity : AppCompatActivity() {
             allowContentAccess = true
             setSupportMultipleWindows(false)
 
-            // Enable caching for better performance
+            // 缓存模式
             cacheMode = WebSettings.LOAD_DEFAULT
 
             // Mixed content for HTTP servers
@@ -129,7 +127,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadServerUrl() {
         val serverUrl = preferencesManager.getServerUrl()
-        android.util.Log.d("MainActivity", "Loading server URL: $serverUrl")
+        android.util.Log.d("MainActivity", "=== 开始加载页面 ===")
+        android.util.Log.d("MainActivity", "服务器URL: $serverUrl")
+        android.util.Log.d("MainActivity", "URL类型: ${if (serverUrl.startsWith("https://")) "HTTPS" else if (serverUrl.startsWith("http://")) "HTTP" else "未知"}")
 
         if (!::webView.isInitialized) {
             android.util.Log.e("MainActivity", "ERROR: WebView not initialized when trying to load URL!")
@@ -137,9 +137,13 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        android.widget.Toast.makeText(this, "正在加载: $serverUrl", android.widget.Toast.LENGTH_SHORT).show()
+        android.widget.Toast.makeText(this, "正在连接: $serverUrl", android.widget.Toast.LENGTH_LONG).show()
+        android.util.Log.d("MainActivity", "WebView JavaScript enabled: ${webView.settings.javaScriptEnabled}")
+        android.util.Log.d("MainActivity", "WebView DOM storage enabled: ${webView.settings.domStorageEnabled}")
+
         webView.loadUrl(serverUrl)
         android.util.Log.d("MainActivity", "WebView.loadUrl() called successfully")
+        android.util.Log.d("MainActivity", "=== loadUrl调用完成，等待页面加载 ===")
     }
 
     private fun restoreCookies() {
@@ -197,8 +201,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (::webView.isInitialized && webView.canGoBack()) {
-            webView.goBack()
+        if (::webView.isInitialized) {
+            // 首先尝试关闭全屏播放器
+            webView.evaluateJavascript(
+                """
+                (function() {
+                    var fullscreenPlayer = document.getElementById('fullscreenPlayer');
+                    if (fullscreenPlayer && fullscreenPlayer.classList.contains('active')) {
+                        closeFullscreenPlayer();
+                        return true;
+                    }
+                    return false;
+                })();
+                """.trimIndent()
+            ) { result ->
+                android.util.Log.d("MainActivity", "Fullscreen player check result: $result")
+
+                // 如果没有关闭全屏播放器，则执行正常的返回逻辑
+                if (result == "false" || result == "null") {
+                    if (webView.canGoBack()) {
+                        webView.goBack()
+                    } else {
+                        super.onBackPressed()
+                    }
+                }
+            }
         } else {
             super.onBackPressed()
         }

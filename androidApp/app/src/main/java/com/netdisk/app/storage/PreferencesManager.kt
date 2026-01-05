@@ -17,6 +17,15 @@ class PreferencesManager(context: Context) {
         }
     }
 
+    // 新方法：保存完整URL（支持HTTPS和cloudflare tunnel）
+    fun saveFullServerUrl(fullUrl: String) {
+        prefs.edit().apply {
+            putString(KEY_FULL_SERVER_URL, fullUrl)
+            putBoolean(KEY_HAS_CONFIGURED, true)
+            apply()
+        }
+    }
+
     fun hasConfigured(): Boolean {
         return prefs.getBoolean(KEY_HAS_CONFIGURED, false)
     }
@@ -30,6 +39,13 @@ class PreferencesManager(context: Context) {
     }
 
     fun getServerUrl(): String {
+        // 优先使用完整URL（支持cloudflare tunnel等）
+        val fullUrl = prefs.getString(KEY_FULL_SERVER_URL, null)
+        if (fullUrl != null && fullUrl.isNotEmpty()) {
+            return fullUrl
+        }
+
+        // 回退到旧的host:port模式
         val host = getServerHost()
         val port = getServerPort()
         return "http://$host:$port"
@@ -63,6 +79,7 @@ class PreferencesManager(context: Context) {
         private const val PREF_NAME = "netdisk_prefs"
         private const val KEY_SERVER_HOST = "server_host"
         private const val KEY_SERVER_PORT = "server_port"
+        private const val KEY_FULL_SERVER_URL = "full_server_url"
         private const val KEY_AUTH_COOKIES = "auth_cookies"
         private const val KEY_HAS_CONFIGURED = "has_configured"
         private const val KEY_STREAM_TOKEN = "stream_token"

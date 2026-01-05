@@ -78,6 +78,38 @@ class NetdiskWebViewClient(
     ) {
         super.onReceivedError(view, errorCode, description, failingUrl)
         Log.e(TAG, "onReceivedError: code=$errorCode, description=$description, url=$failingUrl")
+
+        // 显示错误信息给用户
+        view?.post {
+            android.widget.Toast.makeText(
+                view.context,
+                "页面加载失败: $description\n错误代码: $errorCode",
+                android.widget.Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    override fun onReceivedSslError(
+        view: WebView?,
+        handler: android.webkit.SslErrorHandler?,
+        error: android.net.http.SslError?
+    ) {
+        Log.e(TAG, "SSL错误: ${error?.toString()}")
+
+        // 显示SSL错误
+        view?.post {
+            android.widget.Toast.makeText(
+                view.context,
+                "SSL证书错误: ${error?.toString()}\n请检查网络连接",
+                android.widget.Toast.LENGTH_LONG
+            ).show()
+        }
+
+        // 对于cloudflare tunnel，通常证书是有效的，这里不自动接受
+        // 如果确实需要接受自签名证书，取消下面这行的注释
+        // handler?.proceed()
+
+        handler?.cancel()
     }
 
     companion object {

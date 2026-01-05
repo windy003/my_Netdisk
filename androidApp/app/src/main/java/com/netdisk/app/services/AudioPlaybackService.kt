@@ -69,11 +69,19 @@ class AudioPlaybackService : Service() {
     }
 
     private fun handleIntent(intent: Intent) {
+        Log.d(TAG, "handleIntent: action=${intent.action}")
         when (intent.action) {
             ACTION_PLAY -> {
                 val url = intent.getStringExtra(EXTRA_URL) ?: return
                 val title = intent.getStringExtra(EXTRA_TITLE) ?: "Unknown"
                 val playlistJson = intent.getStringExtra(EXTRA_PLAYLIST)
+                val mode = intent.getStringExtra(EXTRA_PLAY_MODE)
+
+                // 如果Intent中包含播放模式，先设置播放模式
+                mode?.let {
+                    Log.d(TAG, "Setting play mode from playAudio intent: $it")
+                    setPlayMode(it)
+                }
 
                 playlistJson?.let {
                     playlist = parsePlaylist(it)
@@ -91,7 +99,12 @@ class AudioPlaybackService : Service() {
                 seekTo(position)
             }
             ACTION_SET_MODE -> {
-                val mode = intent.getStringExtra(EXTRA_PLAY_MODE) ?: return
+                val mode = intent.getStringExtra(EXTRA_PLAY_MODE)
+                Log.d(TAG, "ACTION_SET_MODE received, mode='$mode'")
+                if (mode == null) {
+                    Log.e(TAG, "MODE is NULL!")
+                    return
+                }
                 setPlayMode(mode)
             }
             ACTION_STOP -> stop()
@@ -160,6 +173,13 @@ class AudioPlaybackService : Service() {
     private fun playTrack(url: String, title: String) {
         currentTrack = AudioTrack(url, title)
 
+        Log.d(TAG, "========================================")
+        Log.d(TAG, "playTrack() called")
+        Log.d(TAG, "  Track: $title")
+        Log.d(TAG, "  URL: $url")
+        Log.d(TAG, "  Current PlayMode: $playMode")
+        Log.d(TAG, "========================================")
+
         // Request audio focus
         val result = audioManager.requestAudioFocus(audioFocusRequest)
         if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
@@ -178,7 +198,7 @@ class AudioPlaybackService : Service() {
             mediaPlayer.setDataSource(fullUrl)
             mediaPlayer.prepareAsync()
 
-            Log.d(TAG, "Playing track: $title")
+            Log.d(TAG, "Playing track: $title, PlayMode: $playMode")
         } catch (e: Exception) {
             Log.e(TAG, "Error playing track", e)
             notifyWebViewOfError()
@@ -299,13 +319,27 @@ class AudioPlaybackService : Service() {
     }
 
     private fun setPlayMode(mode: String) {
+        val oldMode = playMode
         playMode = when (mode.uppercase()) {
             "LOOP" -> PlayMode.LOOP
             "RANDOM" -> PlayMode.RANDOM
             else -> PlayMode.SEQUENCE
         }
         notifyWebViewOfStateChange()
-        Log.d(TAG, "Play mode set to: $playMode")
+        Log.d(TAG, "Play mode changed from $oldMode to $playMode (input: $mode)")
+
+        // 显示Toast提示用户
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            android.widget.Toast.makeText(
+                applicationContext,
+                "播放模式: ${when(playMode) {
+                    PlayMode.LOOP -> "单曲循环"
+                    PlayMode.RANDOM -> "随机播放"
+                    PlayMode.SEQUENCE -> "顺序播放"
+                }}",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun stop() {
@@ -329,13 +363,64 @@ class AudioPlaybackService : Service() {
     }
 
     private fun handleTrackCompletion() {
+        Log.d(TAG, "====== Track completed, playMode: $playMode ======")
+
+        // 显示Toast提示（调试用）
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            android.widget.Toast.makeText(
+                applicationContext,
+                "歌曲结束 - 模式: ${when(playMode) {
+                    PlayMode.LOOP -> "单曲循环"
+                    PlayMode.RANDOM -> "随机"
+                    PlayMode.SEQUENCE -> "顺序"
+                }}",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+        }
+
         when (playMode) {
             PlayMode.LOOP -> {
-                mediaPlayer.seekTo(0)
-                mediaPlayer.start()
+                // 单曲循环：重新播放当前曲目
+                Log.d(TAG, "Looping current track")
+                currentTrack?.let { track ->
+                    // 使用重新准备的方式而不是seekTo，更可靠
+                    try {
+                        mediaPlayer.reset()
+                        val fullUrl = convertToFullUrl(track.url)
+                        Log.d(TAG, "Reloading URL for loop: $fullUrl")
+                        mediaPlayer.setDataSource(fullUrl)
+                        mediaPlayer.prepareAsync()
+                        Log.d(TAG, "Restarting track in loop mode: ${track.title}")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error looping track", e)
+                        // 如果重新准备失败，尝试使用seekTo作为备选方案
+                        try {
+                            mediaPlayer.seekTo(0)
+                            mediaPlayer.start()
+                        } catch (e2: Exception) {
+                            Log.e(TAG, "Error seeking to start", e2)
+                            notifyWebViewOfError()
+                        }
+                    }
+                } ?: run {
+                    Log.w(TAG, "No current track to loop")
+                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                        android.widget.Toast.makeText(
+                            applicationContext,
+                            "错误: 没有当前曲目可以循环",
+                            android.widget.Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
             }
-            PlayMode.RANDOM -> playRandomTrack()
-            PlayMode.SEQUENCE -> playNextTrack()
+            PlayMode.RANDOM -> {
+                Log.d(TAG, "Playing random track")
+                playRandomTrack()
+            }
+            PlayMode.SEQUENCE -> {
+                Log.d(TAG, "Playing next track in sequence")
+                playNextTrack()
+            }
         }
     }
 

@@ -5,6 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ filename }} - 播放器</title>
     <style>
+        /* 主题颜色变量定义 */
+        :root {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: white;
+            --bg-tertiary: #e8e8e8;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-color: #ddd;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --accent-color: #667eea;
+            --accent-hover: #5568d3;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #1a1a1a;
+                --bg-secondary: #2a2a2a;
+                --bg-tertiary: #3a3a3a;
+                --text-primary: #fff;
+                --text-secondary: #ccc;
+                --border-color: #3a3a3a;
+                --shadow-color: rgba(0, 0, 0, 0.5);
+                --accent-color: #667eea;
+                --accent-hover: #7b8ff0;
+            }
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,17 +40,17 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: #1a1a1a;
-            color: white;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
         .header {
-            background: #2a2a2a;
+            background: var(--bg-secondary);
             padding: 15px 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 10px var(--shadow-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -31,7 +58,7 @@
 
         .header h1 {
             font-size: 18px;
-            color: #fff;
+            color: var(--text-primary);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -40,7 +67,7 @@
 
         .back-btn {
             padding: 8px 16px;
-            background: #667eea;
+            background: var(--accent-color);
             color: white;
             text-decoration: none;
             border-radius: 5px;
@@ -50,7 +77,7 @@
         }
 
         .back-btn:hover {
-            background: #5568d3;
+            background: var(--accent-hover);
         }
 
         .player-container {
@@ -65,10 +92,10 @@
 
         .main-player {
             flex: 1;
-            background: #2a2a2a;
+            background: var(--bg-secondary);
             border-radius: 10px;
             padding: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 40px var(--shadow-color);
             display: flex;
             flex-direction: column;
         }
@@ -86,7 +113,7 @@
         .file-name {
             font-size: 24px;
             font-weight: 600;
-            color: #fff;
+            color: var(--text-primary);
             word-break: break-word;
         }
 
@@ -121,16 +148,17 @@
             cursor: pointer;
             font-size: 14px;
             transition: all 0.3s;
-            background: #3a3a3a;
-            color: white;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
         }
 
         .control-btn:hover {
-            background: #4a4a4a;
+            background: var(--border-color);
         }
 
         .control-btn.active {
-            background: #667eea;
+            background: var(--accent-color);
+            color: white;
         }
 
         .mode-btn {
@@ -139,10 +167,10 @@
 
         .playlist-panel {
             width: 350px;
-            background: #2a2a2a;
+            background: var(--bg-secondary);
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 40px var(--shadow-color);
             display: flex;
             flex-direction: column;
             max-height: calc(100vh - 100px);
@@ -153,7 +181,7 @@
             font-weight: 600;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #3a3a3a;
+            border-bottom: 2px solid var(--border-color);
         }
 
         .playlist-items {
@@ -164,7 +192,7 @@
         .playlist-item {
             padding: 12px;
             margin-bottom: 8px;
-            background: #3a3a3a;
+            background: var(--bg-tertiary);
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
@@ -174,11 +202,12 @@
         }
 
         .playlist-item:hover {
-            background: #4a4a4a;
+            background: var(--border-color);
         }
 
         .playlist-item.active {
-            background: #667eea;
+            background: var(--accent-color);
+            color: white;
         }
 
         .playlist-item-icon {
@@ -205,12 +234,12 @@
         }
 
         .btn-primary {
-            background: #667eea;
+            background: var(--accent-color);
             color: white;
         }
 
         .btn-primary:hover {
-            background: #5568d3;
+            background: var(--accent-hover);
         }
 
         .btn-secondary {
@@ -235,16 +264,16 @@
         }
 
         .playlist-items::-webkit-scrollbar-track {
-            background: #2a2a2a;
+            background: var(--bg-secondary);
         }
 
         .playlist-items::-webkit-scrollbar-thumb {
-            background: #4a4a4a;
+            background: var(--bg-tertiary);
             border-radius: 4px;
         }
 
         .playlist-items::-webkit-scrollbar-thumb:hover {
-            background: #5a5a5a;
+            background: var(--border-color);
         }
 
         @media (max-width: 1024px) {
@@ -273,6 +302,37 @@
 
             video {
                 max-height: 300px;
+            }
+        }
+
+        /* Toast提示样式 */
+        .custom-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 500;
+            z-index: 10000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            white-space: nowrap;
+        }
+
+        .custom-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .custom-toast {
+                background: rgba(255, 255, 255, 0.9);
+                color: #333;
             }
         }
     </style>
@@ -357,20 +417,46 @@
             currentIndex = index;
             const track = playlist[index];
 
-            // 更新播放器源
-            const source = player.querySelector('source');
-            source.src = `/stream/${track.path}`;
-            player.load();
-            player.play();
+            // 检查是否在Android应用中
+            if (typeof Android !== 'undefined' && Android.playAudio) {
+                // 使用Android native播放器
+                console.log('使用Android native播放器, playMode:', playMode);
+                const url = `/stream/${track.path}`;
+                const title = track.name;
+                const playlistJson = JSON.stringify(playlist.map(t => ({
+                    url: `/stream/${t.path}`,
+                    title: t.name
+                })));
 
-            // 更新文件名显示
-            document.getElementById('currentFileName').textContent = track.name;
+                // 直接在playAudio调用中传递播放模式
+                console.log('调用Android.playAudio，传递播放模式:', playMode);
+                Android.playAudio(url, title, playlistJson, playMode);
 
-            // 更新下载链接
-            document.getElementById('downloadBtn').href = `/download/${track.path}`;
+                // 更新文件名显示
+                document.getElementById('currentFileName').textContent = track.name;
 
-            // 更新播放列表高亮
-            updatePlaylistHighlight();
+                // 更新下载链接
+                document.getElementById('downloadBtn').href = `/download/${track.path}`;
+
+                // 更新播放列表高亮
+                updatePlaylistHighlight();
+            } else {
+                // 使用HTML5 audio播放器（浏览器环境）
+                console.log('使用HTML5 audio播放器');
+                const source = player.querySelector('source');
+                source.src = `/stream/${track.path}`;
+                player.load();
+                player.play();
+
+                // 更新文件名显示
+                document.getElementById('currentFileName').textContent = track.name;
+
+                // 更新下载链接
+                document.getElementById('downloadBtn').href = `/download/${track.path}`;
+
+                // 更新播放列表高亮
+                updatePlaylistHighlight();
+            }
         }
 
         // 更新播放列表高亮
@@ -430,21 +516,70 @@
 
         // 切换播放模式
         function togglePlayMode() {
+            let modeName = '';
             if (playMode === 'sequence') {
                 playMode = 'loop';
                 modeBtn.textContent = '🔂 单曲循环';
                 modeBtn.title = '单曲循环';
+                modeName = '🔂 单曲循环';
             } else if (playMode === 'loop') {
                 playMode = 'random';
                 modeBtn.textContent = '🔀 随机播放';
                 modeBtn.title = '随机播放';
+                modeName = '🔀 随机播放';
             } else {
                 playMode = 'sequence';
                 modeBtn.textContent = '🔁 顺序播放';
                 modeBtn.title = '顺序播放';
+                modeName = '🔁 顺序播放';
             }
             modeBtn.classList.add('active');
             setTimeout(() => modeBtn.classList.remove('active'), 300);
+
+            // 显示Toast提示
+            showToast(`播放模式: ${modeName}`);
+
+            // 记录播放模式切换（用于调试）
+            console.log('播放模式已切换为:', playMode);
+
+            // 在Android应用中，也显示一个alert作为备用
+            if (typeof Android !== 'undefined') {
+                alert(`播放模式切换到: ${modeName}`);
+
+                // 通知native播放器
+                if (Android.setPlayMode) {
+                    console.log('通知Android切换播放模式:', playMode);
+                    Android.setPlayMode(playMode);
+                }
+            }
+        }
+
+        // 显示Toast提示
+        function showToast(message) {
+            // 移除已存在的toast
+            const existingToast = document.querySelector('.custom-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            // 创建toast元素
+            const toast = document.createElement('div');
+            toast.className = 'custom-toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            // 显示动画
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+
+            // 3秒后移除
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
         }
 
         // 监听播放结束事件

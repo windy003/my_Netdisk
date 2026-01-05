@@ -5,6 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录 - 文件服务器</title>
     <style>
+        /* 主题颜色变量定义 */
+        :root {
+            --bg-card: white;
+            --text-primary: #333;
+            --text-secondary: #555;
+            --text-muted: #666;
+            --border-color: #e0e0e0;
+            --info-bg: #f0f0f0;
+            --accent-color: #667eea;
+            --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-card: #2a2a2a;
+                --text-primary: #fff;
+                --text-secondary: #ccc;
+                --text-muted: #999;
+                --border-color: #4a4a4a;
+                --info-bg: #3a3a3a;
+                --accent-color: #667eea;
+                --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,7 +38,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--accent-gradient);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -21,7 +46,7 @@
         }
 
         .login-container {
-            background: white;
+            background: var(--bg-card);
             padding: 40px;
             border-radius: 10px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
@@ -31,7 +56,7 @@
 
         h1 {
             text-align: center;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 30px;
             font-size: 28px;
         }
@@ -43,7 +68,7 @@
         label {
             display: block;
             margin-bottom: 8px;
-            color: #555;
+            color: var(--text-secondary);
             font-weight: 500;
         }
 
@@ -51,22 +76,24 @@
         input[type="password"] {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--border-color);
             border-radius: 5px;
             font-size: 16px;
             transition: border-color 0.3s;
+            background: var(--bg-card);
+            color: var(--text-primary);
         }
 
         input[type="text"]:focus,
         input[type="password"]:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--accent-color);
         }
 
         .btn-login {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--accent-gradient);
             color: white;
             border: none;
             border-radius: 5px;
@@ -96,10 +123,10 @@
         .info {
             margin-top: 20px;
             padding: 15px;
-            background: #f0f0f0;
+            background: var(--info-bg);
             border-radius: 5px;
             font-size: 14px;
-            color: #666;
+            color: var(--text-muted);
         }
 
         .info p {

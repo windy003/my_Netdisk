@@ -5,6 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ filename }} - 图片查看器</title>
     <style>
+        /* 主题颜色变量定义 */
+        :root {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: white;
+            --bg-tertiary: #e8e8e8;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-color: #ddd;
+            --control-bg: rgba(255, 255, 255, 0.9);
+            --control-btn-bg: #e0e0e0;
+            --control-btn-hover: #d0d0d0;
+            --nav-bg: rgba(255, 255, 255, 0.7);
+            --nav-hover: rgba(255, 255, 255, 0.9);
+            --accent-color: #667eea;
+            --accent-hover: #5568d3;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #1a1a1a;
+                --bg-secondary: #2d2d2d;
+                --bg-tertiary: #3d3d3d;
+                --text-primary: #fff;
+                --text-secondary: #ccc;
+                --border-color: #3d3d3d;
+                --control-bg: rgba(0, 0, 0, 0.7);
+                --control-btn-bg: #444;
+                --control-btn-hover: #555;
+                --nav-bg: rgba(0, 0, 0, 0.5);
+                --nav-hover: rgba(0, 0, 0, 0.8);
+                --accent-color: #667eea;
+                --accent-hover: #7b8ff0;
+            }
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,23 +48,23 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: #1a1a1a;
-            color: #fff;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             overflow: hidden;
         }
 
         .header {
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #3d3d3d;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .header h1 {
             font-size: 18px;
-            color: #fff;
+            color: var(--text-primary);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -54,12 +89,12 @@
         }
 
         .btn-primary {
-            background: #667eea;
+            background: var(--accent-color);
             color: white;
         }
 
         .btn-primary:hover {
-            background: #5568d3;
+            background: var(--accent-hover);
         }
 
         .btn-secondary {
@@ -108,7 +143,7 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
+            background: var(--control-bg);
             padding: 15px 20px;
             border-radius: 10px;
             display: flex;
@@ -117,8 +152,8 @@
         }
 
         .control-btn {
-            background: #444;
-            color: white;
+            background: var(--control-btn-bg);
+            color: var(--text-primary);
             border: none;
             padding: 10px 15px;
             border-radius: 5px;
@@ -128,7 +163,7 @@
         }
 
         .control-btn:hover {
-            background: #555;
+            background: var(--control-btn-hover);
         }
 
         .control-btn:disabled {
@@ -140,8 +175,8 @@
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
+            background: var(--nav-bg);
+            color: var(--text-primary);
             border: none;
             width: 50px;
             height: 50px;
@@ -153,7 +188,7 @@
         }
 
         .nav-button:hover {
-            background: rgba(0, 0, 0, 0.8);
+            background: var(--nav-hover);
         }
 
         .nav-button:disabled {
@@ -170,20 +205,20 @@
         }
 
         .playlist {
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             padding: 15px 20px;
             max-height: 80px;
             overflow-x: auto;
             overflow-y: hidden;
             white-space: nowrap;
-            border-top: 1px solid #3d3d3d;
+            border-top: 1px solid var(--border-color);
         }
 
         .playlist-item {
             display: inline-block;
             padding: 8px 12px;
             margin-right: 10px;
-            background: #3d3d3d;
+            background: var(--bg-tertiary);
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
@@ -191,15 +226,16 @@
         }
 
         .playlist-item:hover {
-            background: #4d4d4d;
+            background: var(--border-color);
         }
 
         .playlist-item.active {
-            background: #667eea;
+            background: var(--accent-color);
+            color: white;
         }
 
         .zoom-info {
-            color: #ccc;
+            color: var(--text-secondary);
             font-size: 14px;
             margin: 0 10px;
         }

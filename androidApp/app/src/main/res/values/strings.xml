@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">Netdisk</string>
     <string name="settings">Settings</string>
-    <string name="server_url">Server URL</string>
-    <string name="server_port">Port</string>
+    <string name="server_url">Server URL (完整URL或主机名)</string>
+    <string name="server_port">Port (完整URL时留空)</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="playing">Playing</string>
