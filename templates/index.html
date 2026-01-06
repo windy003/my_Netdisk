@@ -98,6 +98,90 @@
             flex-wrap: wrap;
         }
 
+        /* 搜索按钮样式 */
+        .search-btn {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .search-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .search-btn.active {
+            background: var(--accent-hover);
+        }
+
+        /* 搜索展开区域 */
+        .search-expanded {
+            background: var(--bg-secondary);
+            padding: 0 20px;
+            border-radius: 5px;
+            margin-bottom: 0px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .search-expanded.active {
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            max-height: 100px;
+            opacity: 1;
+        }
+
+        .search-expanded .search-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-expanded .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid var(--accent-color);
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .search-expanded .search-input:focus {
+            border-color: var(--accent-hover);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .search-expanded .search-clear-button {
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .search-expanded .search-clear-button:hover {
+            background: #5a6268;
+        }
+
+        /* 移动端搜索样式 */
+        @media (max-width: 768px) {
+            .search-expanded .search-input {
+                font-size: 14px;
+                padding: 10px 14px;
+            }
+
+            .search-expanded .search-clear-button {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+        }
+
         .breadcrumb a {
             color: var(--accent-color);
             text-decoration: none;
@@ -301,69 +385,6 @@
             background: #5a6268;
         }
 
-        /* 搜索框样式 */
-        .search-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-left: 10px;
-        }
-
-        .search-input-wrapper {
-            position: relative;
-            display: none;
-        }
-
-        .search-input-wrapper.active {
-            display: flex;
-            align-items: center;
-        }
-
-        .search-input {
-            padding: 10px 35px 10px 12px;
-            border: 2px solid var(--accent-color);
-            border-radius: 5px;
-            font-size: 14px;
-            width: 200px;
-            outline: none;
-            transition: all 0.3s;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-
-        .search-input:focus {
-            border-color: var(--accent-hover);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-        }
-
-        .search-clear-btn {
-            position: absolute;
-            right: 8px;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 16px;
-            padding: 2px 6px;
-        }
-
-        .search-clear-btn:hover {
-            color: var(--text-secondary);
-        }
-
-        .search-btn {
-            background: var(--accent-color);
-            color: white;
-        }
-
-        .search-btn:hover {
-            background: var(--accent-hover);
-        }
-
-        .search-btn.active {
-            background: var(--accent-hover);
-        }
-
         .file-item.hidden {
             display: none !important;
         }
@@ -377,12 +398,6 @@
 
         .no-results.show {
             display: block;
-        }
-
-        @media (max-width: 768px) {
-            .search-input {
-                width: 150px;
-            }
         }
 
         .alert {
@@ -949,16 +964,18 @@
         <div class="actions">
             <button class="btn btn-primary" onclick="openUploadModal()">上传文件</button>
             <button class="btn btn-success" onclick="openMkdirModal()">创建文件夹</button>
+            <button class="btn search-btn" id="searchToggleBtn" onclick="toggleSearch()">🔍 搜索文件</button>
             <div style="margin-left: auto; display: flex; gap: 5px; align-items: center;">
-                <div class="search-container">
-                    <div class="search-input-wrapper" id="searchInputWrapper">
-                        <input type="text" class="search-input" id="searchInput" placeholder="搜索文件..." oninput="filterFiles()">
-                        <button class="search-clear-btn" onclick="clearSearch()" title="清除">×</button>
-                    </div>
-                    <button class="btn search-btn" id="searchBtn" onclick="toggleSearch()" title="搜索">🔍</button>
-                </div>
                 <button class="btn btn-secondary" id="listViewBtn" onclick="switchView('list')" title="列表视图">☰</button>
                 <button class="btn btn-secondary" id="gridViewBtn" onclick="switchView('grid')" title="网格视图">⊞</button>
+            </div>
+        </div>
+
+        <!-- 搜索展开区域 -->
+        <div class="search-expanded" id="searchExpanded">
+            <div class="search-input-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="输入文件名进行搜索..." oninput="filterFiles()">
+                <button class="search-clear-button" onclick="clearSearch()">清除</button>
             </div>
         </div>
 
@@ -1171,19 +1188,19 @@
 
         // ============ 搜索功能 ============
         function toggleSearch() {
-            const searchWrapper = document.getElementById('searchInputWrapper');
-            const searchBtn = document.getElementById('searchBtn');
+            const searchExpanded = document.getElementById('searchExpanded');
+            const searchToggleBtn = document.getElementById('searchToggleBtn');
             const searchInput = document.getElementById('searchInput');
 
-            if (searchWrapper.classList.contains('active')) {
+            if (searchExpanded.classList.contains('active')) {
                 // 关闭搜索
-                searchWrapper.classList.remove('active');
-                searchBtn.classList.remove('active');
+                searchExpanded.classList.remove('active');
+                searchToggleBtn.classList.remove('active');
                 clearSearch();
             } else {
                 // 打开搜索
-                searchWrapper.classList.add('active');
-                searchBtn.classList.add('active');
+                searchExpanded.classList.add('active');
+                searchToggleBtn.classList.add('active');
                 searchInput.focus();
             }
         }
@@ -1236,8 +1253,8 @@
         // 支持 ESC 键关闭搜索
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                const searchWrapper = document.getElementById('searchInputWrapper');
-                if (searchWrapper.classList.contains('active')) {
+                const searchExpanded = document.getElementById('searchExpanded');
+                if (searchExpanded.classList.contains('active')) {
                     toggleSearch();
                 }
             }
