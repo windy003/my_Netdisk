@@ -16,6 +16,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.netdisk.app.services.AudioPlaybackService
 import com.netdisk.app.storage.NetdiskDownloadManager
 import com.netdisk.app.storage.PreferencesManager
+import com.netdisk.app.ui.DownloadsActivity
 import com.netdisk.app.ui.SettingsActivity
 import com.netdisk.app.webview.JavaScriptBridge
 import com.netdisk.app.webview.NetdiskWebChromeClient
@@ -188,6 +189,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.action_downloads -> {
+                startActivity(Intent(this, DownloadsActivity::class.java))
+                true
+            }
             R.id.action_settings -> {
                 startActivity(Intent(this, SettingsActivity::class.java))
                 true

@@ -5,8 +5,13 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import android.webkit.CookieManager
+import com.netdisk.app.models.DownloadRecord
+import com.netdisk.app.models.DownloadStatus
+import java.io.File
 
 class NetdiskDownloadManager(private val context: Context) {
+
+    private val historyManager = DownloadHistoryManager(context)
 
     fun enqueueDownload(url: String, filename: String): Long {
         // Get authentication cookies
@@ -41,7 +46,24 @@ class NetdiskDownloadManager(private val context: Context) {
         }
 
         val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        return downloadManager.enqueue(request)
+        val downloadId = downloadManager.enqueue(request)
+
+        // Save download record to history
+        val filePath = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            "Netdisk/$filename"
+        ).absolutePath
+
+        val record = DownloadRecord(
+            downloadId = downloadId,
+            filename = filename,
+            url = url,
+            filePath = filePath,
+            status = DownloadStatus.PENDING
+        )
+        historyManager.addRecord(record)
+
+        return downloadId
     }
 
     private fun getCookieHeader(url: String): String {

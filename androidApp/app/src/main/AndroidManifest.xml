@@ -40,6 +40,13 @@
             android:label="@string/settings"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Downloads Activity -->
+        <activity
+            android:name=".ui.DownloadsActivity"
+            android:exported="false"
+            android:label="@string/downloads"
+            android:parentActivityName=".MainActivity" />
+
         <!-- Audio Playback Service -->
         <service
             android:name=".services.AudioPlaybackService"

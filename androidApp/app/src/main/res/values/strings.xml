@@ -18,4 +18,21 @@
     <string name="default_server_port">5003</string>
     <string name="notification_channel_name">Media Playback</string>
     <string name="notification_channel_description">Media playback controls</string>
+
+    <!-- Downloads -->
+    <string name="downloads">Downloads</string>
+    <string name="no_downloads">No downloads</string>
+    <string name="download_pending">Waiting</string>
+    <string name="download_downloading">Downloading</string>
+    <string name="download_completed">Completed</string>
+    <string name="download_failed">Failed</string>
+    <string name="download_paused">Paused</string>
+    <string name="download_icon">Download icon</string>
+    <string name="delete">Delete</string>
+    <string name="delete_download">Delete download</string>
+    <string name="delete_download_confirm">Remove this download from history?</string>
+    <string name="download_deleted">Download removed</string>
+    <string name="file_not_found">File not found</string>
+    <string name="no_app_to_open">No app available to open this file</string>
+    <string name="open_file_error">Cannot open file</string>
 </resources>

@@ -1039,7 +1039,7 @@
                                 {% elif item.file_type == 'image' %}
                                     <a href="{{ url_for('view', filepath=item.path) }}" class="btn btn-success btn-sm">查看</a>
                                 {% endif %}
-                                <a href="{{ url_for('download', filepath=item.path) }}" class="btn btn-info btn-sm">下载</a>
+                                <a href="{{ url_for('download', filepath=item.path) }}" class="btn btn-info btn-sm" onclick="return handleDownload(event, '{{ url_for('download', filepath=item.path) }}', '{{ item.name }}')">下载</a>
                             {% endif %}
                             <button class="btn btn-info btn-sm" onclick="copyItem('{{ item.path }}', '{{ item.name }}')">复制</button>
                             <button class="btn btn-info btn-sm" onclick="cutItem('{{ item.path }}', '{{ item.name }}')">剪切</button>
@@ -1264,6 +1264,27 @@
         // 检测是否在 Android App 中运行
         const isAndroidApp = typeof Android !== 'undefined';
         console.log('运行环境:', isAndroidApp ? 'Android App' : 'Web浏览器');
+
+        // 处理下载请求
+        function handleDownload(event, url, filename) {
+            if (isAndroidApp && typeof Android.downloadFile === 'function') {
+                event.preventDefault();
+                try {
+                    // 获取完整的下载URL
+                    const fullUrl = new URL(url, window.location.origin).href;
+                    console.log('调用Android下载:', fullUrl, filename);
+                    Android.downloadFile(fullUrl, filename);
+                    showToast('开始下载: ' + filename);
+                    return false;
+                } catch (error) {
+                    console.error('Android下载失败:', error);
+                    // 回退到浏览器下载
+                    return true;
+                }
+            }
+            // 在浏览器中使用默认行为
+            return true;
+        }
 
         const audioPlayer = document.getElementById('audioPlayer');
         const miniPlayer = document.getElementById('miniPlayer');
