@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.webkit.CookieManager
+import android.webkit.URLUtil
 import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
@@ -119,6 +120,15 @@ class MainActivity : AppCompatActivity() {
         webView.addJavascriptInterface(jsBridge, "Android")
 
         android.util.Log.d("MainActivity", "JavaScript bridge injected")
+
+        // Set download listener for handling file downloads
+        webView.setDownloadListener { url, userAgent, contentDisposition, mimetype, contentLength ->
+            android.util.Log.d("MainActivity", "Download requested: url=$url, mimetype=$mimetype")
+            val filename = URLUtil.guessFileName(url, contentDisposition, mimetype)
+            downloadManager.enqueueDownload(url, filename)
+        }
+
+        android.util.Log.d("MainActivity", "Download listener set")
 
         // Restore cookies if available
         restoreCookies()
