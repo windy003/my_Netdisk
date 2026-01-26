@@ -301,8 +301,8 @@ def clean_old_items():
 
 def auto_clean_recycle_bin():
     """后台自动清理回收站的线程函数"""
-    # 清理间隔：每小时检查一次
-    CLEAN_INTERVAL = 3600  # 秒
+    # 清理间隔：每分钟检查一次
+    CLEAN_INTERVAL = 60  # 秒
 
     while True:
         try:
@@ -320,7 +320,7 @@ def start_auto_clean_thread():
     """启动自动清理后台线程"""
     clean_thread = threading.Thread(target=auto_clean_recycle_bin, daemon=True)
     clean_thread.start()
-    print("[自动清理] 回收站自动清理服务已启动（每小时检查一次）")
+    print("[自动清理] 回收站自动清理服务已启动（每分钟检查一次）")
 
 
 @app.route('/login', methods=['GET', 'POST'])
