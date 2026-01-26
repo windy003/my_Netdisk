@@ -27,7 +27,7 @@ source_path = r"D:\files\myNetdisk"
 
     
 # 目标路径
-destination_path = 'gdrive:/sync/x13y-gen2/my_netdisk'
+destination_path = 'gdrive:/sync/x1c-gen8/my_netdisk'
 
 def dedupe_gdrive():
     """

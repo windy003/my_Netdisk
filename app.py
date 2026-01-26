@@ -32,7 +32,7 @@ CONFIG = {
     'USERNAME': os.getenv('USERNAME', 'admin'),
     'PASSWORD_HASH': generate_password_hash(os.getenv('PASSWORD', 'admin123')),
     'MAX_UPLOAD_SIZE': int(os.getenv('MAX_UPLOAD_SIZE', 500)) * 1024 * 1024,  # MB转字节
-    'PORT': int(os.getenv('PORT', 5000)),
+    'PORT': int(os.getenv('PORT', 5003)),
     'HOST': os.getenv('HOST', '0.0.0.0'),
     'DEBUG': os.getenv('DEBUG', 'True').lower() == 'true',
     'RECYCLE_BIN': '回收站',  # 回收站文件夹名称
