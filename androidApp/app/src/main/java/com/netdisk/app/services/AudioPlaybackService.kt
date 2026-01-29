@@ -36,7 +36,7 @@ class AudioPlaybackService : Service() {
     private var currentTrack: AudioTrack? = null
     private var playlist: List<AudioTrack> = emptyList()
     private var currentIndex: Int = -1
-    private var playMode: PlayMode = PlayMode.SEQUENCE
+    private var playMode: PlayMode = PlayMode.LOOP
 
     private val binder = AudioServiceBinder()
 
@@ -323,7 +323,7 @@ class AudioPlaybackService : Service() {
         playMode = when (mode.uppercase()) {
             "LOOP" -> PlayMode.LOOP
             "RANDOM" -> PlayMode.RANDOM
-            else -> PlayMode.SEQUENCE
+            else -> PlayMode.LOOP  // 默认为单曲循环
         }
         notifyWebViewOfStateChange()
         Log.d(TAG, "Play mode changed from $oldMode to $playMode (input: $mode)")
@@ -335,7 +335,6 @@ class AudioPlaybackService : Service() {
                 "播放模式: ${when(playMode) {
                     PlayMode.LOOP -> "单曲循环"
                     PlayMode.RANDOM -> "随机播放"
-                    PlayMode.SEQUENCE -> "顺序播放"
                 }}",
                 android.widget.Toast.LENGTH_SHORT
             ).show()
@@ -372,7 +371,6 @@ class AudioPlaybackService : Service() {
                 "歌曲结束 - 模式: ${when(playMode) {
                     PlayMode.LOOP -> "单曲循环"
                     PlayMode.RANDOM -> "随机"
-                    PlayMode.SEQUENCE -> "顺序"
                 }}",
                 android.widget.Toast.LENGTH_SHORT
             ).show()
@@ -416,10 +414,6 @@ class AudioPlaybackService : Service() {
             PlayMode.RANDOM -> {
                 Log.d(TAG, "Playing random track")
                 playRandomTrack()
-            }
-            PlayMode.SEQUENCE -> {
-                Log.d(TAG, "Playing next track in sequence")
-                playNextTrack()
             }
         }
     }

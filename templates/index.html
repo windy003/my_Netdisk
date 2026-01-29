@@ -1680,7 +1680,7 @@
 
         let playlist = [];
         let currentTrackIndex = -1;
-        let playMode = 'sequence'; // sequence: 顺序播放, loop: 单曲循环, random: 随机播放
+        let playMode = 'loop'; // loop: 单曲循环, random: 随机播放
         let isNativePlaying = false; // 是否正在使用原生播放器播放
         let nativeDuration = 0; // Android 原生播放器的总时长（毫秒）
         let nativePosition = 0; // Android 原生播放器的当前位置（毫秒）
@@ -1905,18 +1905,15 @@
             updateFullscreenPlayModeButton();
         }
 
-        // 切换播放模式
+        // 切换播放模式（只有单曲循环和随机播放两种模式）
         function togglePlayMode() {
             let modeName = '';
-            if (playMode === 'sequence') {
-                playMode = 'loop';
-                modeName = '🔂 单曲循环';
-            } else if (playMode === 'loop') {
+            if (playMode === 'loop') {
                 playMode = 'random';
                 modeName = '🔀 随机播放';
             } else {
-                playMode = 'sequence';
-                modeName = '🔁 顺序播放';
+                playMode = 'loop';
+                modeName = '🔂 单曲循环';
             }
             updatePlayModeButton();
             savePlayerState();
@@ -1989,10 +1986,7 @@
 
         // 更新全屏播放器的播放模式按钮
         function updateFullscreenPlayModeButton() {
-            if (playMode === 'sequence') {
-                fullscreenPlayModeBtn.textContent = '🔁';
-                fullscreenPlayModeBtn.title = '顺序播放';
-            } else if (playMode === 'loop') {
+            if (playMode === 'loop') {
                 fullscreenPlayModeBtn.textContent = '🔂';
                 fullscreenPlayModeBtn.title = '单曲循环';
             } else if (playMode === 'random') {
@@ -2142,16 +2136,13 @@
 
         // 自动播放下一首
         audioPlayer.addEventListener('ended', () => {
-            if (playMode === 'loop') {
-                // 单曲循环：重新播放当前曲目
-                audioPlayer.currentTime = 0;
-                audioPlayer.play();
-            } else if (playMode === 'random') {
+            if (playMode === 'random') {
                 // 随机播放：播放随机曲目
                 playRandomTrack();
             } else {
-                // 顺序播放：播放下一曲
-                nextTrack();
+                // 单曲循环：重新播放当前曲目
+                audioPlayer.currentTime = 0;
+                audioPlayer.play();
             }
         });
 

@@ -7,7 +7,7 @@ data class PlaybackState(
     val currentPosition: Long = 0L,  // Position in milliseconds
     val duration: Long = 0L,         // Duration in milliseconds
     val currentTrack: AudioTrack? = null,
-    val playMode: PlayMode = PlayMode.SEQUENCE
+    val playMode: PlayMode = PlayMode.LOOP
 ) {
     fun toJson(): String {
         return Gson().toJson(this)
@@ -21,7 +21,6 @@ data class PlaybackState(
 }
 
 enum class PlayMode {
-    SEQUENCE,  // Sequential playback
     LOOP,      // Loop current track
     RANDOM     // Random playback
 }
