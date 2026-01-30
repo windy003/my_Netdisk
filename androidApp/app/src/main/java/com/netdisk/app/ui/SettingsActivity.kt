@@ -39,12 +39,17 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun loadSettings() {
-        // 获取当前保存的完整URL
-        val fullUrl = preferencesManager.getServerUrl()
+        // 获取各个URL值用于调试
+        val lastSuccessfulUrl = preferencesManager.getLastSuccessfulUrl()
+        val serverUrl = preferencesManager.getServerUrl()
+
+        android.util.Log.d("SettingsActivity", "=== loadSettings ===")
+        android.util.Log.d("SettingsActivity", "lastSuccessfulUrl: $lastSuccessfulUrl")
+        android.util.Log.d("SettingsActivity", "getServerUrl(): $serverUrl")
 
         // 如果是完整URL（包含http://或https://），直接显示
-        if (fullUrl.startsWith("http://") || fullUrl.startsWith("https://")) {
-            serverUrlInput.setText(fullUrl)
+        if (serverUrl.startsWith("http://") || serverUrl.startsWith("https://")) {
+            serverUrlInput.setText(serverUrl)
             portInput.setText("")  // 完整URL模式下端口留空
         } else {
             // 传统模式：显示主机和端口
@@ -72,6 +77,9 @@ class SettingsActivity : AppCompatActivity() {
                 fullUrl = fullUrl.substring(0, fullUrl.length - 1)
             }
 
+            // 清除旧的成功URL，让新配置生效
+            preferencesManager.clearLastSuccessfulUrl()
+
             // 保存完整URL
             preferencesManager.saveFullServerUrl(fullUrl)
             Toast.makeText(this, "已保存完整URL: $fullUrl", Toast.LENGTH_SHORT).show()
@@ -96,6 +104,9 @@ class SettingsActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.invalid_url), Toast.LENGTH_SHORT).show()
                 return
             }
+
+            // 清除旧的成功URL，让新配置生效
+            preferencesManager.clearLastSuccessfulUrl()
 
             // Save settings
             preferencesManager.saveServerConfig(host, port)

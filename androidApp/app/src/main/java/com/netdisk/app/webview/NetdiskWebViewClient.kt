@@ -1,6 +1,7 @@
 package com.netdisk.app.webview
 
 import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebView
@@ -27,9 +28,47 @@ class NetdiskWebViewClient(
                 preferencesManager.saveAuthCookies(cookies)
                 Log.d(TAG, "Saved authentication cookies")
 
+                // 保存成功登录的URL（提取基础URL）
+                saveSuccessfulBaseUrl(url)
+
                 // 获取流媒体访问 token
                 fetchStreamToken(view)
             }
+        }
+    }
+
+    private fun saveSuccessfulBaseUrl(url: String) {
+        Log.d(TAG, "=== saveSuccessfulBaseUrl called ===")
+        Log.d(TAG, "Input URL: $url")
+        try {
+            val uri = Uri.parse(url)
+            val scheme = uri.scheme ?: "http"
+            val host = uri.host
+            if (host == null) {
+                Log.e(TAG, "Host is null, cannot save URL")
+                return
+            }
+            val port = uri.port
+
+            val baseUrl = if (port != -1 && port != 80 && port != 443) {
+                "$scheme://$host:$port"
+            } else {
+                "$scheme://$host"
+            }
+
+            Log.d(TAG, "Parsed baseUrl: $baseUrl")
+
+            val currentSavedUrl = preferencesManager.getLastSuccessfulUrl()
+            Log.d(TAG, "Current saved URL: $currentSavedUrl")
+
+            if (currentSavedUrl != baseUrl) {
+                preferencesManager.saveLastSuccessfulUrl(baseUrl)
+                Log.d(TAG, "Saved new last successful URL: $baseUrl")
+            } else {
+                Log.d(TAG, "URL unchanged, not saving")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing URL: $url", e)
         }
     }
 

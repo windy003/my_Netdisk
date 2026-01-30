@@ -30,10 +30,14 @@ class NetdiskWebChromeClient(
         this.filePathCallback = filePathCallback
 
         // Launch file picker with multiple file selection support
-        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+        // 使用 ACTION_OPEN_DOCUMENT 代替 ACTION_GET_CONTENT，性能更好
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             type = "*/*"
             addCategory(Intent.CATEGORY_OPENABLE)
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true) // Enable multi-select
+            // 添加持久化权限标志，提高性能
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         }
 
         try {
