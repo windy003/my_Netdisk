@@ -218,10 +218,15 @@
             }
         }
 
+        /* 导航按钮隐藏状态（点击图片切换） */
+        body.nav-hidden .nav-button {
+            opacity: 0;
+            pointer-events: none;
+        }
+
         /* 全屏模式样式 */
         .fullscreen-mode .header,
-        .fullscreen-mode .playlist,
-        .fullscreen-mode .nav-button {
+        .fullscreen-mode .playlist {
             display: none !important;
         }
 
@@ -247,7 +252,8 @@
             display: flex;
         }
 
-        .fullscreen-mode.controls-hidden .fullscreen-toolbar {
+        .fullscreen-mode.controls-hidden .fullscreen-toolbar,
+        .fullscreen-mode.controls-hidden .nav-button {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
@@ -440,6 +446,7 @@
 
             if (isFullscreen) {
                 document.body.classList.add('fullscreen-mode');
+                document.body.classList.remove('nav-hidden'); // 进入全屏时重置导航按钮状态
                 showFullscreenHint();
                 // 默认显示控件
                 controlsHidden = false;
@@ -447,6 +454,7 @@
             } else {
                 document.body.classList.remove('fullscreen-mode');
                 document.body.classList.remove('controls-hidden');
+                document.body.classList.remove('nav-hidden'); // 退出全屏时重置导航按钮状态
                 controlsHidden = false;
             }
         }
@@ -472,6 +480,12 @@
             if (e.target.closest('.fullscreen-toolbar')) return;
 
             toggleControlsVisibility();
+        });
+
+        // 点击图片切换导航按钮显示/隐藏（非全屏模式）
+        img.addEventListener('click', function(e) {
+            if (isFullscreen) return; // 全屏模式由 document click handler 处理
+            document.body.classList.toggle('nav-hidden');
         });
 
         // 双击图片进入全屏
